@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Roadbook - Programme de Voyage V3</title>
+    <style>
+        *, *::before, *::after {
+            box-sizing: border-box;
+        }
+        @page {
+            size: A4;
+            margin: 15mm 12mm;
+            background-color: #f0f4f8;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            color: #1e293b;
+            background-color: #f0f4f8;
+            margin: 0;
+            padding: 0;
+            font-size: 10.5pt;
+            line-height: 1.6;
+        }
+        
+        /* En-tête stylisé */
+        .header {
+            background: linear-gradient(135deg, #0f172a, #1e3a8a);
+            color: white;
+            padding: 26px 20px;
+            border-radius: 14px;
+            margin-bottom: 25px;
+            text-align: center;
+            box-shadow: 0 4px 10px rgba(15, 23, 42, 0.15);
+            border-bottom: 4px solid #3b82f6;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 24pt;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        .header p {
+            margin: 8px 0 0 0;
+            font-size: 11.5pt;
+            opacity: 0.95;
+            font-weight: 500;
+            color: #93c5fd;
+        }
+        
+        /* Conteneurs d'étapes bien séparés */
+        .step-container {
+            background-color: white;
+            border-radius: 16px;
+            padding: 22px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+            border: 1px solid #e2e8f0;
+            page-break-inside: avoid;
+        }
+        .step-title {
+            font-size: 15pt;
+            font-weight: 800;
+            color: #1e3a8a;
+            margin-top: 0;
+            margin-bottom: 22px;
+            border-bottom: 3px solid #3b82f6;
+            padding-bottom: 12px;
+            letter-spacing: -0.3px;
+        }
+        
+        /* Frise chronologique ultra-claire */
+        .timeline {
+            position: relative;
+            padding-left: 24px;
+            border-left: 3.5px solid #cbd5e1;
+            margin-left: 8px;
+        }
+        .timeline-item {
+            position: relative;
+            margin-bottom: 24px;
+        }
+        .timeline-item:last-child {
+            margin-bottom: 0;
+        }
+        
+        /* Badges Horaires avec effet de relief */
+        .time {
+            font-weight: 800;
+            color: #1e3a8a;
+            display: inline-block;
+            margin-bottom: 6px;
+            background: linear-gradient(135deg, #eff6ff, #dbeafe);
+            padding: 4px 10px;
+            border-radius: 8px;
+            font-size: 10pt;
+            border: 1px solid #bfdbfe;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+        }
+        
+        /* Contenu textuel bien lisible */
+        .content {
+            margin-left: 2px;
+            font-weight: 600;
+            color: #0f172a;
+            font-size: 11pt;
+        }
+        
+        /* Blocs de détails / Transferts */
+        .details {
+            background-color: #f8fafc;
+            border-left: 4px solid #3b82f6;
+            padding: 12px 16px;
+            margin-top: 10px;
+            border-radius: 8px;
+            font-size: 10pt;
+            color: #334155;
+            box-shadow: inset 0 1px 2px rgba(0,0,0,0.02);
+        }
+        .details ul {
+            margin: 6px 0 0 0;
+            padding-left: 20px;
+        }
+        .details li {
+            margin-bottom: 5px;
+        }
+        
+        /* Badges de tarifs */
+        .price {
+            display: inline-block;
+            background-color: #ecfdf5;
+            color: #065f46;
+            padding: 4px 10px;
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: 10pt;
+            margin-top: 8px;
+            border: 1px solid #a7f3d0;
+        }
+        
+        /* VISUEL TRAIN UNI : LOCO + VOITURES COLLÉES */
+        .train-link-container {
+            margin-top: 14px;
+            background-color: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 10px;
+            padding: 12px;
+            text-align: center;
+        }
+        .train-label {
+            font-size: 9pt;
+            font-weight: 700;
+            color: #475569;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+        }
+        .train-assembly {
+            display: table;
+            width: 100%;
+            table-layout: fixed;
+            border-collapse: collapse; /* Supprime tout espace entre les cellules */
+            background-color: transparent;
+        }
+        .train-loco-part {
+            display: table-cell;
+            width: 25%; /* Ajustement pour respecter les proportions naturelles */
+            vertical-align: middle;
+            padding: 0;
+            margin: 0;
+            text-align: right; /* Aligne l'image à droite pour toucher la voiture */
+        }
+        .train-voitures-part {
+            display: table-cell;
+            width: 75%;
+            vertical-align: middle;
+            padding: 0;
+            margin: 0;
+            text-align: left; /* Aligne l'image à gauche pour toucher la loco */
+        }
+        .train-assembly img {
+            display: inline-block;
+            height: auto;
+            max-height: 40px; /* Brider la hauteur pour alignement parfait */
+            margin: 0;
+            padding: 0;
+            vertical-align: middle;
+        }
+        
+        /* VISUEL UNI POUR TRAINS NOMAD */
+        .nomad-container {
+            margin-top: 14px;
+            background-color: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 10px;
+            padding: 12px;
+            text-align: center;
+        }
+        .nomad-container img {
+            display: block;
+            width: 100%;
+            height: auto;
+            max-height: 50px;
+            object-fit: contain;
+        }
+
+        /* GRILLE DES GARES : VISIBILITÉ TOTALE (Pas de rognage !) */
+        .images-grid {
+            display: table;
+            width: 100%;
+            margin-top: 16px;
+            border-collapse: separate;
+            border-spacing: 12px 0;
+        }
+        .image-box {
+            display: table-cell;
+            width: 50%;
+            background-color: #ffffff;
+            border: 1px solid #cbd5e1;
+            border-radius: 10px;
+            padding: 10px;
+            text-align: center;
+            vertical-align: top;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+        }
+        .image-box span {
+            display: block;
+            font-weight: 700;
+            color: #1e293b;
+            font-size: 9.5pt;
+            margin-bottom: 8px;
+        }
+        .station-img-wrapper {
+            width: 100%;
+            background-color: #f1f5f9;
+            border-radius: 6px;
+            padding: 4px;
+            border: 1px solid #e2e8f0;
+        }
+        .station-img-wrapper img {
+            width: 100%;
+            height: auto; /* Hauteur libre pour afficher l'image en ENTIER */
+            max-height: 150px; /* Limite raisonnable pour le mobile */
+            object-fit: contain; /* L'image s'adapte en entier sans être coupée ! */
+            display: block;
+            margin: 0 auto;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <h1>Roadbook Retour 18 ans Nalya</h1>
+        <p>Du 18 juillet au 22 juillet 2026</p>
+    </div>
+
+    <!-- ÉTAPE 1 -->
+    <div class="step-container">
+        <div class="step-title">🏆 Étape 1 : Le Post-Course (Samedi 18 Juillet)</div>
+        <div class="timeline">
+            <div class="timeline-item">
+                <span class="time">14h30 – 15h45</span>
+                <div class="content">Course Championnat de France VTT.</div>
+            </div>
+            <div class="timeline-item">
+                <span class="time">15h45 – 18h15</span>
+                <div class="content">Récupération active, douche au chalet et bouclage du sac.</div>
+            </div>
+            <div class="timeline-item">
+                <span class="time">18h15 – 20h30</span>
+                <div class="content">Débriefing coach et dîner avec le team.</div>
+            </div>
+            <div class="timeline-item">
+                <span class="time">21h00</span>
+                <div class="content">Départ du Super Dévoluy en navette/voiture vers la vallée.</div>
+            </div>
+            <div class="timeline-item">
+                <span class="time">22h12</span>
+                <div class="content">
+                    Départ Train de Nuit – Gare de Veynes-Dévoluy.
+                    <br><span class="price">Tarif : 89,00 €</span> — Gros dodo pour récupérer de la course.
+                    
+                    <div class="train-assembly" style="display: flex; align-items: flex-end; justify-content: center; width: 100%; max-width: 100%; overflow: hidden; background: transparent;">
+                        <div style="display: flex; align-items: flex-end; width: 100%; max-width: max-content;">
+                            <img src="loco intercites.png" alt="Locomotive" style="height: auto; max-height: 35px; width: auto; max-width: 20vw; display: block; margin: 0; padding: 0;">
+                            <img src="voitures intercites.png" alt="Voitures" style="height: auto; max-height: 35px; width: auto; max-width: 75vw; display: block; margin: 0; padding: 0; margin-left: -1px;">
+                        </div>
+                    </div>
+                    
+                    <div class="images-grid">
+                        <div class="image-box">
+                            <span>Gare de Veynes</span>
+                            <div class="station-img-wrapper">
+                                <img src="Gare de Veyne.jpg" alt="Veynes">
+                            </div>
+                        </div>
+                        <div class="image-box">
+                            <span>Gare d'Austerlitz</span>
+                            <div class="station-img-wrapper">
+                                <img src="Gare d'Austerlitz.jpg" alt="Austerlitz">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ÉTAPE 2 -->
+    <div class="step-container">
+        <div class="step-title">🎂 Étape 2 : L'Intermède Normand (Dimanche 19 Juillet)</div>
+        <div class="timeline">
+            <div class="timeline-item">
+                <span class="time">07h30</span>
+                <div class="content">Arrivée Paris Austerlitz.</div>
+            </div>
+            <div class="timeline-item">
+                <span class="time">07h30 – 08h00</span>
+                <div class="content">
+                    Transfert Paris Austerlitz → Paris Saint-Lazare.
+                    <div class="details">
+                        <ul>
+                            <li>10 min de marche entre la gare d'Austerlitz et la Gare de Lyon.</li>
+                            <li>Métro Ligne 14 direction Saint-Denis Pleyel.</li>
+                            <li>Trajet Gare de Lyon → Saint-Lazare (environ 10 min).</li>
+                            <li><strong>Temps total du transfert :</strong> environ 20 min.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="timeline-item">
+                <span class="time">08h00 – 08h30</span>
+                <div class="content">
+                    Petit-déjeuner à la boulangerie Paul de la gare Saint-Lazare.
+                    <div class="images-grid">
+                        <div class="image-box" style="width: 100%;">
+                            <span>Gare de Saint-Lazare</span>
+                            <div class="station-img-wrapper">
+                                <img src="Gare_de_Paris-Saint-Lazare_001.jpg" alt="Gare Saint-Lazare">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="timeline-item">
+                <span class="time">08h40</span>
+                <div class="content">
+                    Départ Train NOMAD (Paris Saint-Lazare → Yvetot).
+                    <br><span class="price">Tarif : 9,80 €</span>
+                    <div class="nomad-container">
+                        <img src="nomad.png" alt="Nomad">
+                    </div>
+                </div>
+            </div>
+            <div class="timeline-item">
+                <span class="time">10h25</span>
+                <div class="content">Arrivée à Yvetot. Passage à la maison pour prendre une douche puis surprise.</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ÉTAPE 3 -->
+    <div class="step-container">
+        <div class="step-title">🛌 Étape 3 : Repos & Logistique (Lundi 20 Juillet)</div>
+        <div class="timeline">
+            <div class="timeline-item">
+                <span class="time">Journée OFF</span>
+                <div class="content">Profiter, dormir au maximum. La fatigue du train de nuit et de la course va se faire sentir.</div>
+            </div>
+            <div class="timeline-item">
+                <span class="time">Préparation</span>
+                <div class="content">Vérification des affaires pour le retour vers la Coupe de France.</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ÉTAPE 4 -->
+    <div class="step-container">
+        <div class="step-title">🏔️ Étape 4 : Le Grand Retour vers les Alpes (Mardi 21 Juillet)</div>
+        <div class="timeline">
+            <div class="timeline-item">
+                <span class="time">16h30</span>
+                <div class="content">
+                    Départ de la maison.
+                    <div class="details">
+                        Nalya m'emmène en voiture jusqu'à la gare d'Yvetot (environ 30 min prévus pour être tranquille).
+                    </div>
+                </div>
+            </div>
+            <div class="timeline-item">
+                <span class="time">17h07</span>
+                <div class="content">
+                    Départ du train NOMAD (Yvetot → Rouen Rive Droite).
+                    <div class="nomad-container">
+                        <img src="TER nomad.png" alt="TER Nomad">
+                    </div>
+                </div>
+            </div>
+            <div class="timeline-item">
+                <span class="time">17h40</span>
+                <div class="content">Arrivée à Rouen Rive Droite.</div>
+            </div>
+            <div class="timeline-item">
+                <span class="time">18h18</span>
+                <div class="content">
+                    Départ du train NOMAD (Rouen Rive Droite → Paris Saint-Lazare).
+                    <div class="nomad-container">
+                        <img src="nomad.png" alt="Nomad">
+                    </div>
+                </div>
+            </div>
+            <div class="timeline-item">
+                <span class="time">19h49</span>
+                <div class="content">Arrivée à Paris Saint-Lazare.</div>
+            </div>
+            <div class="timeline-item">
+                <span class="time">19h50 – 20h30</span>
+                <div class="content">
+                    Transfert Paris Saint-Lazare → Paris Austerlitz.
+                    <div class="details">
+                        <ul>
+                            <li>Métro Ligne 14 direction Aéroport d'Orly jusqu'à Gare de Lyon.</li>
+                            <li>10 min de marche entre la Gare de Lyon et la gare d'Austerlitz.</li>
+                            <li><strong>Temps total du transfert :</strong> environ 20 min.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="timeline-item">
+                <span class="time">20h30 – 20h50</span>
+                <div class="content">Dîner à la gare d'Austerlitz avec le sandwich préparé à la maison.</div>
+            </div>
+            <div class="timeline-item">
+                <span class="time">20h57</span>
+                <div class="content">
+                    Départ de l'Intercités de Nuit (Paris Austerlitz → L'Argentière-les-Écrins).
+                    <br><span class="price">Nuit à bord pour récupérer avant la suite du séjour.</span>
+                    
+                    <div class="train-assembly" style="display: flex; align-items: flex-end; justify-content: center; width: 100%; max-width: 100%; overflow: hidden; background: transparent;">
+                        <div style="display: flex; align-items: flex-end; width: 100%; max-width: max-content;">
+                            <img src="loco intercites.png" alt="Locomotive" style="height: auto; max-height: 35px; width: auto; max-width: 20vw; display: block; margin: 0; padding: 0;">
+                            <img src="voitures intercites.png" alt="Voitures" style="height: auto; max-height: 35px; width: auto; max-width: 75vw; display: block; margin: 0; padding: 0; margin-left: -1px;">
+                        </div>
+                    </div>
+                    
+                    <div class="images-grid">
+                        <div class="image-box">
+                            <span>Gare de Paris Austerlitz</span>
+                            <div class="station-img-wrapper">
+                                <img src="Gare d'Austerlitz.jpg" alt="Austerlitz">
+                            </div>
+                        </div>
+                        <div class="image-box">
+                            <span>Gare de l'Argentière</span>
+                            <div class="station-img-wrapper">
+                                <img src="Gare_d'Argentière_2008.jpg" alt="Argentière">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="timeline-item">
+                <span class="time">08h03</span>
+                <div class="content">Arrivée à la gare de L'Argentière-les-Écrins.</div>
+            </div>
+            <div class="timeline-item">
+                <span class="time">08h10</span>
+                <div class="content">Ma mère vient me récupérer à la gare.</div>
+            </div>
+            <div class="timeline-item">
+                <span class="time">Environ 08h25</span>
+                <div class="content">Arrivée à Puy-Saint-Vincent après 15 min de voiture.</div>
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>
