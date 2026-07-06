@@ -1,479 +1,888 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Roadbook - Programme de Voyage V3</title>
-    <style>
-        *, *::before, *::after {
-            box-sizing: border-box;
-        }
-        @page {
-            size: A4;
-            margin: 15mm 12mm;
-            background-color: #f0f4f8;
-        }
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            color: #1e293b;
-            background-color: #f0f4f8;
-            margin: 0;
-            padding: 0;
-            font-size: 10.5pt;
-            line-height: 1.6;
-        }
-        
-        /* En-tête stylisé */
-        .header {
-            background: linear-gradient(135deg, #0f172a, #1e3a8a);
-            color: white;
-            padding: 26px 20px;
-            border-radius: 14px;
-            margin-bottom: 25px;
-            text-align: center;
-            box-shadow: 0 4px 10px rgba(15, 23, 42, 0.15);
-            border-bottom: 4px solid #3b82f6;
-        }
-        .header h1 {
-            margin: 0;
-            font-size: 24pt;
-            font-weight: 800;
-            letter-spacing: -0.5px;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.2);
-        }
-        .header p {
-            margin: 8px 0 0 0;
-            font-size: 11.5pt;
-            opacity: 0.95;
-            font-weight: 500;
-            color: #93c5fd;
-        }
-        
-        /* Conteneurs d'étapes bien séparés */
-        .step-container {
-            background-color: white;
-            border-radius: 16px;
-            padding: 22px;
-            margin-bottom: 30px;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
-            border: 1px solid #e2e8f0;
-            page-break-inside: avoid;
-        }
-        .step-title {
-            font-size: 15pt;
-            font-weight: 800;
-            color: #1e3a8a;
-            margin-top: 0;
-            margin-bottom: 22px;
-            border-bottom: 3px solid #3b82f6;
-            padding-bottom: 12px;
-            letter-spacing: -0.3px;
-        }
-        
-        /* Frise chronologique ultra-claire */
-        .timeline {
-            position: relative;
-            padding-left: 24px;
-            border-left: 3.5px solid #cbd5e1;
-            margin-left: 8px;
-        }
-        .timeline-item {
-            position: relative;
-            margin-bottom: 24px;
-        }
-        .timeline-item:last-child {
-            margin-bottom: 0;
-        }
-        
-        /* Badges Horaires avec effet de relief */
-        .time {
-            font-weight: 800;
-            color: #1e3a8a;
-            display: inline-block;
-            margin-bottom: 6px;
-            background: linear-gradient(135deg, #eff6ff, #dbeafe);
-            padding: 4px 10px;
-            border-radius: 8px;
-            font-size: 10pt;
-            border: 1px solid #bfdbfe;
-            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
-        }
-        
-        /* Contenu textuel bien lisible */
-        .content {
-            margin-left: 2px;
-            font-weight: 600;
-            color: #0f172a;
-            font-size: 11pt;
-        }
-        
-        /* Blocs de détails / Transferts */
-        .details {
-            background-color: #f8fafc;
-            border-left: 4px solid #3b82f6;
-            padding: 12px 16px;
-            margin-top: 10px;
-            border-radius: 8px;
-            font-size: 10pt;
-            color: #334155;
-            box-shadow: inset 0 1px 2px rgba(0,0,0,0.02);
-        }
-        .details ul {
-            margin: 6px 0 0 0;
-            padding-left: 20px;
-        }
-        .details li {
-            margin-bottom: 5px;
-        }
-        
-        /* Badges de tarifs */
-        .price {
-            display: inline-block;
-            background-color: #ecfdf5;
-            color: #065f46;
-            padding: 4px 10px;
-            border-radius: 8px;
-            font-weight: 700;
-            font-size: 10pt;
-            margin-top: 8px;
-            border: 1px solid #a7f3d0;
-        }
-        
-        /* VISUEL TRAIN UNI : LOCO + VOITURES COLLÉES */
-        .train-link-container {
-            margin-top: 14px;
-            background-color: #f8fafc;
-            border: 1px solid #e2e8f0;
-            border-radius: 10px;
-            padding: 12px;
-            text-align: center;
-        }
-        .train-label {
-            font-size: 9pt;
-            font-weight: 700;
-            color: #475569;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            margin-bottom: 8px;
-        }
-        .train-assembly {
-            display: table;
-            width: 100%;
-            table-layout: fixed;
-            border-collapse: collapse; /* Supprime tout espace entre les cellules */
-            background-color: transparent;
-        }
-        .train-loco-part {
-            display: table-cell;
-            width: 25%; /* Ajustement pour respecter les proportions naturelles */
-            vertical-align: middle;
-            padding: 0;
-            margin: 0;
-            text-align: right; /* Aligne l'image à droite pour toucher la voiture */
-        }
-        .train-voitures-part {
-            display: table-cell;
-            width: 75%;
-            vertical-align: middle;
-            padding: 0;
-            margin: 0;
-            text-align: left; /* Aligne l'image à gauche pour toucher la loco */
-        }
-        .train-assembly img {
-            display: inline-block;
-            height: auto;
-            max-height: 40px; /* Brider la hauteur pour alignement parfait */
-            margin: 0;
-            padding: 0;
-            vertical-align: middle;
-        }
-        
-        /* VISUEL UNI POUR TRAINS NOMAD */
-        .nomad-container {
-            margin-top: 14px;
-            background-color: #f8fafc;
-            border: 1px solid #e2e8f0;
-            border-radius: 10px;
-            padding: 12px;
-            text-align: center;
-        }
-        .nomad-container img {
-            display: block;
-            width: 100%;
-            height: auto;
-            max-height: 50px;
-            object-fit: contain;
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Roadbook · Retour éclair — 18 → 22 juillet 2026</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@600;700;800&family=JetBrains+Mono:wght@500;600;700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#0a0e1a;
+    --ink-2:#0f1526;
+    --panel:#121a30;
+    --panel-2:#182140;
+    --paper:#f8f2e4;
+    --paper-2:#efe4cd;
+    --amber:#f0a83a;
+    --amber-light:#ffd98c;
+    --rust:#e2643b;
+    --rust-dark:#b8482a;
+    --pine:#3f9a7d;
+    --pine-dark:#255e4a;
+    --ink-text:#1c1408;
+    --muted:#8d97b3;
+    --hair:rgba(248,242,228,0.14);
+    --shadow-lg:0 24px 48px -24px rgba(0,0,0,0.65);
+    --shadow-sm:0 10px 20px -12px rgba(0,0,0,0.45);
+    --radius:20px;
+  }
 
-        /* GRILLE DES GARES : VISIBILITÉ TOTALE (Pas de rognage !) */
-        .images-grid {
-            display: table;
-            width: 100%;
-            margin-top: 16px;
-            border-collapse: separate;
-            border-spacing: 12px 0;
-        }
-        .image-box {
-            display: table-cell;
-            width: 50%;
-            background-color: #ffffff;
-            border: 1px solid #cbd5e1;
-            border-radius: 10px;
-            padding: 10px;
-            text-align: center;
-            vertical-align: top;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
-        }
-        .image-box span {
-            display: block;
-            font-weight: 700;
-            color: #1e293b;
-            font-size: 9.5pt;
-            margin-bottom: 8px;
-        }
-        .station-img-wrapper {
-            width: 100%;
-            background-color: #f1f5f9;
-            border-radius: 6px;
-            padding: 4px;
-            border: 1px solid #e2e8f0;
-        }
-        .station-img-wrapper img {
-            width: 100%;
-            height: auto; /* Hauteur libre pour afficher l'image en ENTIER */
-            max-height: 150px; /* Limite raisonnable pour le mobile */
-            object-fit: contain; /* L'image s'adapte en entier sans être coupée ! */
-            display: block;
-            margin: 0 auto;
-        }
-    </style>
+  *,*::before,*::after{ box-sizing:border-box; }
+
+  html{ scroll-behavior:smooth; }
+
+  body{
+    margin:0;
+    background:var(--ink);
+    color:var(--paper);
+    font-family:'Inter',system-ui,sans-serif;
+    font-size:15px;
+    line-height:1.6;
+    -webkit-font-smoothing:antialiased;
+    padding-bottom:60px;
+  }
+
+  h1,h2,h3{ font-family:'Big Shoulders Display',sans-serif; margin:0; }
+
+  a{ color:inherit; }
+
+  :focus-visible{ outline:2.5px solid var(--amber); outline-offset:3px; border-radius:4px; }
+
+  img{ max-width:100%; display:block; }
+
+  /* ---------- progress bar ---------- */
+  .progress{
+    position:fixed; top:0; left:0; height:3px; width:0%;
+    background:linear-gradient(90deg,var(--amber),var(--amber-light));
+    z-index:100; transition:width .1s linear;
+  }
+
+  /* ---------- hero ---------- */
+  .hero{
+    position:relative;
+    padding:56px 22px 40px;
+    background:
+      radial-gradient(1.5px 1.5px at 20% 30%, rgba(255,255,255,.5) 40%, transparent 41%),
+      radial-gradient(1.5px 1.5px at 70% 15%, rgba(255,255,255,.4) 40%, transparent 41%),
+      radial-gradient(1px 1px at 45% 60%, rgba(255,255,255,.35) 40%, transparent 41%),
+      radial-gradient(1.5px 1.5px at 85% 70%, rgba(255,255,255,.3) 40%, transparent 41%),
+      radial-gradient(1px 1px at 10% 80%, rgba(255,255,255,.3) 40%, transparent 41%),
+      linear-gradient(180deg,#060911,#101a33 70%, #121a30);
+    overflow:hidden;
+    text-align:center;
+    border-bottom:1px solid var(--hair);
+  }
+  .hero__inner{ max-width:560px; margin:0 auto; position:relative; z-index:1; }
+  .hero__eyebrow{
+    font-family:'JetBrains Mono',monospace;
+    text-transform:uppercase;
+    letter-spacing:.14em;
+    font-size:11.5px;
+    color:var(--amber-light);
+    margin:0 0 14px;
+    opacity:0;
+    animation:fadeUp .7s ease forwards .1s;
+  }
+  .hero__title{
+    font-weight:800;
+    font-size:clamp(40px,11vw,64px);
+    line-height:.92;
+    letter-spacing:-.01em;
+    color:var(--paper);
+    opacity:0;
+    animation:fadeUp .8s ease forwards .25s;
+  }
+  .hero__title span{ color:var(--amber); }
+  .hero__sub{
+    margin:16px 0 26px;
+    color:var(--muted);
+    font-size:14.5px;
+    font-weight:500;
+    opacity:0;
+    animation:fadeUp .8s ease forwards .4s;
+  }
+  .route-strip{
+    display:flex; align-items:center; justify-content:center; flex-wrap:wrap;
+    gap:8px 6px;
+    font-family:'JetBrains Mono',monospace;
+    font-size:12px;
+    letter-spacing:.03em;
+  }
+  .route-strip__stop{
+    background:var(--panel-2);
+    border:1px solid var(--hair);
+    color:var(--paper);
+    padding:7px 12px;
+    border-radius:8px;
+    opacity:0;
+    transform:translateY(6px);
+    animation:flapIn .5s ease forwards;
+  }
+  .route-strip__stop:nth-child(1){ animation-delay:.6s; }
+  .route-strip__stop:nth-child(3){ animation-delay:.75s; }
+  .route-strip__stop:nth-child(5){ animation-delay:.9s; }
+  .route-strip__arrow{ width:16px; height:16px; color:var(--amber); flex:none; opacity:0; animation:fadeUp .5s ease forwards; }
+  .route-strip__arrow:nth-child(2){ animation-delay:.68s; }
+  .route-strip__arrow:nth-child(4){ animation-delay:.83s; }
+
+  @keyframes fadeUp{ from{ opacity:0; transform:translateY(10px);} to{ opacity:1; transform:translateY(0);} }
+  @keyframes flapIn{ from{ opacity:0; transform:translateY(6px) rotateX(40deg);} to{ opacity:1; transform:translateY(0) rotateX(0);} }
+
+  /* ---------- day nav ---------- */
+  .daynav{
+    position:sticky; top:0; z-index:50;
+    display:flex; gap:8px;
+    padding:12px 16px;
+    background:rgba(10,14,26,.88);
+    backdrop-filter:blur(10px);
+    -webkit-backdrop-filter:blur(10px);
+    border-bottom:1px solid var(--hair);
+    overflow-x:auto;
+    scrollbar-width:none;
+  }
+  .daynav::-webkit-scrollbar{ display:none; }
+  .daynav__pill{
+    flex:none;
+    display:flex; flex-direction:column; gap:2px;
+    padding:8px 14px;
+    border-radius:12px;
+    text-decoration:none;
+    background:var(--panel);
+    border:1px solid var(--hair);
+    transition:background .25s ease, border-color .25s ease, transform .25s ease;
+  }
+  .daynav__pill.is-active{
+    background:var(--panel-2);
+    border-color:var(--amber);
+    transform:translateY(-1px);
+  }
+  .daynav__num{
+    font-family:'JetBrains Mono',monospace;
+    font-size:10px;
+    letter-spacing:.1em;
+    color:var(--amber);
+  }
+  .daynav__label{
+    font-size:12px;
+    font-weight:600;
+    color:var(--paper);
+    white-space:nowrap;
+  }
+
+  /* ---------- day section ---------- */
+  main{ max-width:640px; margin:0 auto; padding:0 16px; }
+
+  .day{ padding:44px 0 8px; scroll-margin-top:70px; }
+
+  .day__header{
+    display:flex; align-items:baseline; gap:12px; flex-wrap:wrap;
+    padding-bottom:18px; margin-bottom:26px;
+    border-bottom:2px solid var(--hair);
+  }
+  .day__num{
+    font-family:'JetBrains Mono',monospace;
+    font-size:12px;
+    color:var(--accent,var(--amber));
+    letter-spacing:.1em;
+    border:1px solid var(--accent,var(--amber));
+    padding:3px 9px;
+    border-radius:20px;
+  }
+  .day__title{
+    font-size:clamp(26px,7vw,34px);
+    font-weight:800;
+    color:var(--paper);
+    flex:1 1 auto;
+  }
+  .day__date{
+    width:100%;
+    font-size:13px;
+    color:var(--muted);
+    font-weight:500;
+  }
+
+  .day--race{ --accent:var(--rust); }
+  .day--rest{ --accent:var(--pine); }
+  .day--normandy{ --accent:var(--pine); }
+  .day--return{ --accent:var(--amber); }
+
+  /* ---------- timeline rail ---------- */
+  .timeline{ position:relative; padding-left:26px; }
+  .timeline::before{
+    content:'';
+    position:absolute; left:6px; top:6px; bottom:6px; width:2px;
+    background-image:repeating-linear-gradient(to bottom, var(--hair) 0 7px, transparent 7px 15px);
+  }
+  .stop{ position:relative; margin-bottom:22px; opacity:0; transform:translateY(14px); transition:opacity .55s ease, transform .55s ease; }
+  .stop.is-visible{ opacity:1; transform:translateY(0); }
+  .stop:last-child{ margin-bottom:0; }
+  .stop::before{
+    content:'';
+    position:absolute; left:-26px; top:6px;
+    width:11px; height:11px; border-radius:50%;
+    background:var(--dot,var(--amber));
+    box-shadow:0 0 0 4px var(--ink);
+  }
+  .stop--race::before{ --dot:var(--rust); }
+  .stop--rest::before{ --dot:var(--pine); }
+  .stop--transfer::before{ --dot:var(--muted); width:8px; height:8px; left:-24.5px; top:7px; }
+
+  .stop__time{
+    font-family:'JetBrains Mono',monospace;
+    font-weight:700;
+    font-size:13px;
+    color:var(--paper);
+    background:var(--panel-2);
+    display:inline-block;
+    padding:3px 9px;
+    border-radius:7px;
+    margin-bottom:8px;
+    border:1px solid var(--hair);
+  }
+  .stop__text{ font-size:14.5px; font-weight:500; color:var(--paper); }
+  .stop__text strong{ color:var(--amber-light); font-weight:700; }
+
+  /* plain simple stop (arrival/short note) */
+  .note{ padding:2px 0; }
+
+  /* ---------- transfer card ---------- */
+  .transfer{
+    background:var(--panel);
+    border-left:3px dashed var(--muted);
+    border-radius:0 12px 12px 0;
+    padding:12px 14px;
+    margin-top:8px;
+  }
+  .transfer__icon{ width:16px; height:16px; color:var(--muted); vertical-align:-3px; margin-right:6px; }
+  .transfer ul{ margin:8px 0 0; padding-left:18px; color:var(--muted); font-size:13px; }
+  .transfer li{ margin-bottom:5px; }
+  .transfer li strong{ color:var(--paper); }
+
+  /* ---------- race / event highlight ---------- */
+  .event{
+    position:relative;
+    background:linear-gradient(135deg,var(--rust),var(--rust-dark));
+    border-radius:var(--radius);
+    padding:20px 20px 22px;
+    color:#fff2ea;
+    box-shadow:var(--shadow-sm);
+    overflow:hidden;
+  }
+  .event::after{
+    content:'';
+    position:absolute; inset:0;
+    background-image:repeating-linear-gradient(115deg, rgba(255,255,255,.06) 0 2px, transparent 2px 34px);
+    pointer-events:none;
+  }
+  .event__eyebrow{
+    display:flex; align-items:center; gap:7px;
+    font-family:'JetBrains Mono',monospace;
+    font-size:11px; text-transform:uppercase; letter-spacing:.1em;
+    opacity:.85; margin-bottom:8px;
+  }
+  .event__eyebrow svg{ width:15px; height:15px; }
+  .event__title{ font-size:21px; font-weight:800; margin-bottom:4px; }
+  .event__meta{ font-size:13px; opacity:.9; }
+
+  /* ---------- ticket (train departure) ---------- */
+  .ticket{
+    background:var(--paper);
+    color:var(--ink-text);
+    border-radius:var(--radius);
+    overflow:hidden;
+    box-shadow:var(--shadow-lg);
+    transition:transform .3s ease;
+  }
+  .ticket:hover{ transform:translateY(-2px); }
+  .ticket__top{ padding:18px 20px 14px; }
+  .ticket__kind{
+    display:flex; align-items:center; gap:6px;
+    font-family:'JetBrains Mono',monospace;
+    font-size:10.5px; text-transform:uppercase; letter-spacing:.1em;
+    color:var(--kind-color,var(--rust-dark));
+    margin-bottom:10px;
+  }
+  .ticket__kind svg{ width:14px; height:14px; }
+  .ticket--intercite{ --kind-color:var(--rust-dark); }
+  .ticket--nomad{ --kind-color:var(--pine-dark); }
+
+  .ticket__route{
+    display:flex; align-items:center; gap:10px;
+    font-size:19px; font-weight:800; font-family:'Big Shoulders Display',sans-serif;
+    letter-spacing:.01em;
+  }
+  .ticket__route svg{ width:18px; height:18px; color:var(--muted); flex:none; }
+  .ticket__time-row{
+    display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px;
+    margin-top:10px;
+  }
+  .ticket__time{
+    font-family:'JetBrains Mono',monospace; font-weight:700; font-size:22px;
+    color:var(--ink-text);
+  }
+  .ticket__price{
+    font-family:'JetBrains Mono',monospace; font-weight:700; font-size:13px;
+    background:rgba(63,154,125,.15); color:var(--pine-dark);
+    padding:4px 10px; border-radius:7px;
+  }
+  .ticket__note{ margin-top:10px; font-size:13px; color:#5a4c33; font-style:italic; }
+
+  .ticket__perf{ position:relative; height:0; }
+  .ticket__perf::before{
+    content:''; position:absolute; left:-9px; top:-9px;
+    width:18px; height:18px; border-radius:50%; background:var(--ink);
+  }
+  .ticket__perf::after{
+    content:''; position:absolute; right:-9px; top:-9px;
+    width:18px; height:18px; border-radius:50%; background:var(--ink);
+  }
+  .ticket__divider{ border-top:2px dashed var(--paper-2); margin:0 20px; }
+
+  .ticket__stub{
+    padding:14px 20px 18px;
+    background:var(--paper-2);
+  }
+  .ticket__stub-label{
+    font-family:'JetBrains Mono',monospace; font-size:9.5px; text-transform:uppercase;
+    letter-spacing:.12em; color:#8a7c5e; margin-bottom:8px;
+  }
+
+  /* keep this composition logic exactly as provided — loco and voitures are
+     intentionally different scales, do not normalize their sizing */
+  .train-assembly{ display:flex; align-items:flex-end; justify-content:center; width:100%; max-width:100%; overflow:hidden; background:transparent; }
+
+  .nomad-container{
+    background:#fff; border-radius:10px; padding:10px; border:1px solid var(--paper-2);
+  }
+  .nomad-container img{ width:100%; height:auto; max-height:46px; object-fit:contain; }
+
+  .images-grid{ display:flex; gap:10px; margin-top:12px; }
+  .image-box{
+    flex:1; background:#fff; border:1px solid var(--paper-2); border-radius:10px;
+    padding:9px; text-align:center;
+  }
+  .image-box span{ display:block; font-size:10.5px; font-weight:700; color:#6b5d41; margin-bottom:7px; }
+  .station-img-wrapper{ background:#f4ede0; border-radius:6px; padding:4px; }
+  .station-img-wrapper img{ width:100%; height:auto; max-height:110px; object-fit:contain; margin:0 auto; }
+
+  .barcode{
+    height:28px; margin-top:14px;
+    background-image:repeating-linear-gradient(90deg,#2a2416 0 2px, transparent 2px 3px, #2a2416 5px 6px, transparent 6px 8px, #2a2416 8px 11px, transparent 11px 13px);
+    opacity:.55;
+    border-radius:2px;
+  }
+
+  /* ---------- rest / care ---------- */
+  .care{
+    background:var(--panel);
+    border:1px solid var(--hair);
+    border-radius:var(--radius);
+    padding:18px 18px 10px;
+  }
+  .care__head{ display:flex; align-items:center; gap:8px; margin-bottom:6px; }
+  .care__head svg{ width:17px; height:17px; color:var(--pine); }
+  .care__head h3{ font-size:16px; font-weight:700; color:var(--paper); font-family:'Inter',sans-serif; }
+  .care__intro{ font-size:13px; color:var(--muted); margin-bottom:12px; }
+
+  details.routine{
+    border-top:1px solid var(--hair);
+    padding:12px 0;
+  }
+  details.routine:last-of-type{ padding-bottom:14px; }
+  details.routine summary{
+    cursor:pointer;
+    list-style:none;
+    display:flex; align-items:center; justify-content:space-between;
+    font-weight:700; font-size:13.5px; color:var(--paper);
+  }
+  details.routine summary::-webkit-details-marker{ display:none; }
+  details.routine summary::after{
+    content:'+';
+    font-family:'JetBrains Mono',monospace;
+    font-size:16px; color:var(--pine); transition:transform .25s ease;
+  }
+  details.routine[open] summary::after{ transform:rotate(45deg); }
+  details.routine ul{ margin:10px 0 0; padding-left:18px; font-size:13px; color:var(--muted); }
+  details.routine li{ margin-bottom:7px; }
+  details.routine li strong{ color:var(--paper); }
+
+  /* ---------- footer ---------- */
+  footer{
+    text-align:center; padding:50px 20px 10px;
+    color:var(--muted); font-size:12.5px;
+    font-family:'JetBrains Mono',monospace;
+    letter-spacing:.05em;
+  }
+
+  /* reduced motion */
+  @media (prefers-reduced-motion: reduce){
+    html{ scroll-behavior:auto; }
+    .hero__eyebrow,.hero__title,.hero__sub,.route-strip__stop,.route-strip__arrow{ animation:none !important; opacity:1 !important; transform:none !important; }
+    .stop{ opacity:1; transform:none; transition:none; }
+  }
+
+  @media (max-width:420px){
+    .hero{ padding:44px 16px 32px; }
+    .ticket__time{ font-size:19px; }
+    .images-grid{ flex-direction:column; }
+  }
+
+  @media print{
+    body{ background:#fff; color:#111; }
+    .progress,.daynav{ display:none; }
+    .hero{ background:#111; -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+    .stop{ opacity:1 !important; transform:none !important; }
+    .ticket{ box-shadow:none; border:1px solid #ccc; }
+  }
+</style>
 </head>
 <body>
 
-    <div class="header">
-        <h1>Roadbook Retour 18 ans Nalya</h1>
-        <p>Du 18 juillet au 22 juillet 2026</p>
+<div class="progress" id="progress"></div>
+
+<header class="hero">
+  <div class="hero__inner">
+    <p class="hero__eyebrow">Roadbook confidentiel · 18 → 22 juillet 2026</p>
+    <h1 class="hero__title">Retour <span>éclair</span></h1>
+    <p class="hero__sub">Championnat de France VTT → Normandie → Coupe de France</p>
+    <div class="route-strip">
+      <span class="route-strip__stop">SUPER DÉVOLUY</span>
+      <svg class="route-strip__arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+      <span class="route-strip__stop">YVETOT</span>
+      <svg class="route-strip__arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+      <span class="route-strip__stop">PUY-SAINT-VINCENT</span>
+    </div>
+  </div>
+</header>
+
+<nav class="daynav" id="daynav">
+  <a href="#jour1" class="daynav__pill" data-target="jour1"><span class="daynav__num">JOUR 01 · SAM 18/07</span><span class="daynav__label">Post-course</span></a>
+  <a href="#jour2" class="daynav__pill" data-target="jour2"><span class="daynav__num">JOUR 02 · DIM 19/07</span><span class="daynav__label">Intermède normand</span></a>
+  <a href="#jour3" class="daynav__pill" data-target="jour3"><span class="daynav__num">JOUR 03 · LUN 20/07</span><span class="daynav__label">Repos & soins</span></a>
+  <a href="#jour4" class="daynav__pill" data-target="jour4"><span class="daynav__num">JOUR 04 · MAR 21/07</span><span class="daynav__label">Retour vers les Alpes</span></a>
+</nav>
+
+<main>
+
+  <!-- ============ JOUR 1 ============ -->
+  <section class="day day--race" id="jour1">
+    <div class="day__header">
+      <span class="day__num">Jour 01</span>
+      <h2 class="day__title">Le post-course</h2>
+      <p class="day__date">Samedi 18 juillet</p>
     </div>
 
-    <!-- ÉTAPE 1 -->
-    <div class="step-container">
-        <div class="step-title">🏆 Étape 1 : Le Post-Course (Samedi 18 Juillet)</div>
-        <div class="timeline">
-            <div class="timeline-item">
-                <span class="time">14h30 – 15h45</span>
-                <div class="content">Course Championnat de France VTT.</div>
-            </div>
-            <div class="timeline-item">
-                <span class="time">15h45 – 18h15</span>
-                <div class="content">Récupération active, douche au chalet et bouclage du sac.</div>
-            </div>
-            <div class="timeline-item">
-                <span class="time">18h15 – 20h30</span>
-                <div class="content">Débriefing coach et dîner avec le team.</div>
-            </div>
-            <div class="timeline-item">
-                <span class="time">21h00</span>
-                <div class="content">Départ du Super Dévoluy en navette/voiture vers la vallée.</div>
-            </div>
-            <div class="timeline-item">
-                <span class="time">22h12</span>
-                <div class="content">
-                    Départ Train de Nuit – Gare de Veynes-Dévoluy.
-                    <br><span class="price"> — Gros dodo pour récupérer de la course.</span>
-                    
-                    <div class="train-assembly" style="display: flex; align-items: flex-end; justify-content: center; width: 100%; max-width: 100%; overflow: hidden; background: transparent;">
-                        <div style="display: flex; align-items: flex-end; width: 100%; max-width: max-content;">
-                            <img src="loco intercites.png" alt="Locomotive" style="height: auto; max-height: 35px; width: auto; max-width: 20vw; display: block; margin: 0; padding: 0;">
-                            <img src="voitures intercites.png" alt="Voitures" style="height: auto; max-height: 35px; width: auto; max-width: 75vw; display: block; margin: 0; padding: 0; margin-left: -1px;">
-                        </div>
-                    </div>
-                    
-                    <div class="images-grid">
-                        <div class="image-box">
-                            <span>Gare de Veynes</span>
-                            <div class="station-img-wrapper">
-                                <img src="Gare de Veyne.jpg" alt="Veynes">
-                            </div>
-                        </div>
-                        <div class="image-box">
-                            <span>Gare d'Austerlitz</span>
-                            <div class="station-img-wrapper">
-                                <img src="Gare d'Austerlitz.jpg" alt="Austerlitz">
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+    <div class="timeline">
+
+      <div class="stop stop--race">
+        <span class="stop__time">14h30 – 15h45</span>
+        <div class="event">
+          <div class="event__eyebrow">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 15V3M4 4h11l-1.5 3.5L15 11H4"/><path d="M4 21h6"/></svg>
+            Course
+          </div>
+          <div class="event__title">Championnat de France VTT</div>
+          <div class="event__meta">Super Dévoluy</div>
         </div>
+      </div>
+
+      <div class="stop">
+        <span class="stop__time">15h45 – 18h15</span>
+        <div class="stop__text">Récupération active, douche au chalet et bouclage du sac.</div>
+      </div>
+
+      <div class="stop">
+        <span class="stop__time">18h15 – 20h30</span>
+        <div class="stop__text">Débriefing coach et dîner avec le team.</div>
+      </div>
+
+      <div class="stop stop--transfer">
+        <span class="stop__time">21h00</span>
+        <div class="stop__text">Départ du Super Dévoluy en navette / voiture vers la vallée.</div>
+      </div>
+
+      <div class="stop">
+        <span class="stop__time">22h12</span>
+        <div class="ticket ticket--intercite">
+          <div class="ticket__top">
+            <div class="ticket__kind">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3a1 1 0 0 1 1 1v5a1 1 0 0 1-1 1H8a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h4Z"/><circle cx="9" cy="9" r="0"/></svg>
+              Intercités de nuit
+            </div>
+            <div class="ticket__route">
+              Veynes-Dévoluy
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+              Paris
+            </div>
+            <div class="ticket__time-row">
+              <span class="ticket__time">22h12</span>
+              <span class="ticket__price">89,00 €</span>
+            </div>
+            <p class="ticket__note">Gros dodo pour récupérer de la course.</p>
+          </div>
+          <div class="ticket__perf"></div>
+          <div class="ticket__divider"></div>
+          <div class="ticket__stub">
+            <p class="ticket__stub-label">Composition du train</p>
+            <div class="train-assembly">
+              <div style="display:flex; align-items:flex-end; width:100%; max-width:max-content;">
+                <img src="loco intercites.png" alt="Locomotive" style="height:auto; max-height:35px; width:auto; max-width:20vw; display:block; margin:0; padding:0;">
+                <img src="voitures intercites.png" alt="Voitures" style="height:auto; max-height:35px; width:auto; max-width:75vw; display:block; margin:0; padding:0; margin-left:-1px;">
+              </div>
+            </div>
+            <div class="images-grid">
+              <div class="image-box">
+                <span>Gare de Veynes</span>
+                <div class="station-img-wrapper"><img src="Gare de Veyne.jpg" alt="Veynes"></div>
+              </div>
+              <div class="image-box">
+                <span>Gare d'Austerlitz</span>
+                <div class="station-img-wrapper"><img src="Gare d'Austerlitz.jpg" alt="Austerlitz"></div>
+              </div>
+            </div>
+            <div class="barcode"></div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ============ JOUR 2 ============ -->
+  <section class="day day--normandy" id="jour2">
+    <div class="day__header">
+      <span class="day__num">Jour 02</span>
+      <h2 class="day__title">L'intermède normand</h2>
+      <p class="day__date">Dimanche 19 juillet</p>
     </div>
 
-    <!-- ÉTAPE 2 -->
-    <div class="step-container">
-        <div class="step-title">🎂 Étape 2 : L'Intermède Normand (Dimanche 19 Juillet)</div>
-        <div class="timeline">
-            <div class="timeline-item">
-                <span class="time">07h30</span>
-                <div class="content">Arrivée Paris Austerlitz.</div>
-            </div>
-            <div class="timeline-item">
-                <span class="time">07h30 – 08h00</span>
-                <div class="content">
-                    Transfert Paris Austerlitz → Paris Saint-Lazare.
-                    <div class="details">
-                        <ul>
-                            <li>10 min de marche entre la gare d'Austerlitz et la Gare de Lyon.</li>
-                            <li>Métro Ligne 14 direction Saint-Denis Pleyel.</li>
-                            <li>Trajet Gare de Lyon → Saint-Lazare (environ 10 min).</li>
-                            <li><strong>Temps total du transfert :</strong> environ 20 min.</li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-            <div class="timeline-item">
-                <span class="time">08h00 – 08h30</span>
-                <div class="content">
-                    Petit-déjeuner à la boulangerie Paul de la gare Saint-Lazare.
-                    <div class="images-grid">
-                        <div class="image-box" style="width: 100%;">
-                            <span>Gare de Saint-Lazare</span>
-                            <div class="station-img-wrapper">
-                                <img src="Gare_de_Paris-Saint-Lazare_001.jpg" alt="Gare Saint-Lazare">
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="timeline-item">
-                <span class="time">08h40</span>
-                <div class="content">
-                    Départ Train NOMAD
-                    <br><span class="price"> (Paris Saint-Lazare → Yvetot)</span>
-                    <div class="nomad-container">
-                        <img src="nomad.png" alt="Nomad">
-                    </div>
-                </div>
-            </div>
-            <div class="timeline-item">
-                <span class="time">10h25</span>
-                <div class="content">Arrivée à Yvetot. Passage à la maison pour prendre une douche puis surprise.</div>
-            </div>
+    <div class="timeline">
+
+      <div class="stop">
+        <span class="stop__time">07h30</span>
+        <div class="stop__text">Arrivée à Paris Austerlitz.</div>
+      </div>
+
+      <div class="stop stop--transfer">
+        <span class="stop__time">07h30 – 08h00</span>
+        <div class="stop__text">Transfert Paris Austerlitz → Paris Saint-Lazare.</div>
+        <div class="transfer">
+          <svg class="transfer__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:inline-block"><circle cx="13" cy="4" r="2"/><path d="m10 22 1-7-2-2 1-5 3 3 3-1 2 3-3 1-1 3 2 5"/></svg>
+          <strong style="color:var(--paper); font-size:13px;">Trajet</strong>
+          <ul>
+            <li>10 min de marche entre la gare d'Austerlitz et la Gare de Lyon.</li>
+            <li>Métro Ligne 14, direction Saint-Denis Pleyel.</li>
+            <li>Gare de Lyon → Saint-Lazare : environ 10 min.</li>
+            <li><strong>Temps total :</strong> environ 20 min.</li>
+          </ul>
         </div>
+      </div>
+
+      <div class="stop">
+        <span class="stop__time">08h00 – 08h30</span>
+        <div class="stop__text">Petit-déjeuner à la boulangerie Paul de la gare Saint-Lazare.</div>
+        <div class="images-grid" style="margin-top:10px;">
+          <div class="image-box" style="flex:1 1 100%;">
+            <span>Gare de Saint-Lazare</span>
+            <div class="station-img-wrapper"><img src="Gare_de_Paris-Saint-Lazare_001.jpg" alt="Gare Saint-Lazare"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="stop">
+        <span class="stop__time">08h40</span>
+        <div class="ticket ticket--nomad">
+          <div class="ticket__top">
+            <div class="ticket__kind">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="4" width="16" height="13" rx="2"/><path d="M8 21h8M9 17v4M15 17v4"/></svg>
+              Train NOMAD
+            </div>
+            <div class="ticket__route">
+              Saint-Lazare
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+              Yvetot
+            </div>
+            <div class="ticket__time-row">
+              <span class="ticket__time">08h40</span>
+              <span class="ticket__price">9,80 €</span>
+            </div>
+          </div>
+          <div class="ticket__perf"></div>
+          <div class="ticket__divider"></div>
+          <div class="ticket__stub">
+            <div class="nomad-container"><img src="nomad.png" alt="Nomad"></div>
+            <div class="barcode"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="stop">
+        <span class="stop__time">10h25</span>
+        <div class="stop__text">Arrivée à Yvetot. Passage à la maison pour prendre une douche, puis <strong>surprise</strong>.</div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ============ JOUR 3 ============ -->
+  <section class="day day--rest" id="jour3">
+    <div class="day__header">
+      <span class="day__num">Jour 03</span>
+      <h2 class="day__title">Repos & logistique</h2>
+      <p class="day__date">Lundi 20 juillet</p>
     </div>
 
-    <!-- ÉTAPE 3 -->
-    <div class="step-container">
-        <div class="step-title">🛌 Étape 3 : Repos & Logistique (Lundi 20 Juillet)</div>
-        <div class="timeline">
-            <div class="timeline-item">
-                <span class="time">Journée OFF</span>
-                <div class="content">Profiter, dormir au maximum. La fatigue du train de nuit et de la course va se faire sentir.</div>
-            </div>
-            <div class="timeline-item">
-                <span class="time">Préparation</span>
-                <div class="content">Vérification des affaires pour le retour vers la Coupe de France.</div>
-            </div>
+    <div class="timeline">
+
+      <div class="stop stop--rest">
+        <span class="stop__time">Journée off</span>
+        <div class="stop__text">Profiter, dormir au maximum. La fatigue du train de nuit et de la course va se faire sentir.</div>
+      </div>
+
+      <div class="stop stop--rest">
+        <span class="stop__time">Programme récupération</span>
+        <div class="stop__text" style="margin-bottom:10px;">Optimisation musculaire avant la prochaine échéance à Puy-Saint-Vincent :</div>
+
+        <div class="care">
+          <div class="care__head">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8Z"/></svg>
+            <h3>Routine de récupération</h3>
+          </div>
+          <p class="care__intro">3 blocs à répartir sur la journée — touchez un titre pour le détail.</p>
+
+          <details class="routine">
+            <summary>1 · Compression &amp; circulation — matin &amp; après-midi</summary>
+            <ul>
+              <li>Porter les <strong>chaussettes de contention</strong> pendant au moins 3 à 4 heures, en position assise ou allongée, pour faciliter le retour veineux.</li>
+            </ul>
+          </details>
+
+          <details class="routine">
+            <summary>2 · Pistolet masseur — fin d'après-midi, 15 min</summary>
+            <ul>
+              <li><strong>Quadriceps &amp; ischios :</strong> 2 min par groupe musculaire, mouvements lents de bas en haut, intensité légère à modérée, sans insister sur les zones douloureuses.</li>
+              <li><strong>Mollets :</strong> 1 min 30 par côté, en évitant l'arrière du genou.</li>
+              <li><strong>Fessiers :</strong> 2 min de chaque côté (zone souvent très sollicitée en VTT).</li>
+            </ul>
+          </details>
+
+          <details class="routine">
+            <summary>3 · Mobilité &amp; étirements légers — soirée, 20 min</summary>
+            <ul>
+              <li><strong>Ouverture des hanches</strong> (postures du pigeon ou du lézard) : 1 min 30 de chaque côté pour relâcher les fléchisseurs de hanche bridés par le pédalage.</li>
+              <li><strong>Chaîne postérieure</strong> (ischios / dos) : allongé sur le dos, lever une jambe après l'autre à la verticale avec une sangle ou les mains, bas du dos au sol — 1 min par jambe.</li>
+              <li><strong>Détente lombaire</strong> (torsion vertébrale douce) : allongé, genoux pliés basculés d'un côté, regard de l'autre — 1 min de chaque côté.</li>
+            </ul>
+          </details>
         </div>
+      </div>
+
+      <div class="stop">
+        <span class="stop__time">Préparation</span>
+        <div class="stop__text">Vérification des affaires pour le retour vers la Coupe de France.</div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ============ JOUR 4 ============ -->
+  <section class="day day--return" id="jour4">
+    <div class="day__header">
+      <span class="day__num">Jour 04</span>
+      <h2 class="day__title">Le grand retour vers les Alpes</h2>
+      <p class="day__date">Mardi 21 → mercredi 22 juillet</p>
     </div>
 
-    <!-- ÉTAPE 4 -->
-    <div class="step-container">
-        <div class="step-title">🏔️ Étape 4 : Le Grand Retour vers les Alpes (Mardi 21 Juillet)</div>
-        <div class="timeline">
-            <div class="timeline-item">
-                <span class="time">16h30</span>
-                <div class="content">
-                    Départ de la maison.
-                    <div class="details">
-                        Nalya m'emmène en voiture jusqu'à la gare d'Yvetot (environ 30 min prévus pour être tranquille).
-                    </div>
-                </div>
-            </div>
-            <div class="timeline-item">
-                <span class="time">17h07</span>
-                <div class="content">
-                    Départ du train NOMAD (Yvetot → Rouen Rive Droite).
-                    <div class="nomad-container">
-                        <img src="TER nomad.png" alt="TER Nomad">
-                    </div>
-                </div>
-            </div>
-            <div class="timeline-item">
-                <span class="time">17h40</span>
-                <div class="content">Arrivée à Rouen Rive Droite.</div>
-            </div>
-            <div class="timeline-item">
-                <span class="time">18h18</span>
-                <div class="content">
-                    Départ du train NOMAD (Rouen Rive Droite → Paris Saint-Lazare).
-                    <div class="nomad-container">
-                        <img src="nomad.png" alt="Nomad">
-                    </div>
-                </div>
-            </div>
-            <div class="timeline-item">
-                <span class="time">19h49</span>
-                <div class="content">Arrivée à Paris Saint-Lazare.</div>
-            </div>
-            <div class="timeline-item">
-                <span class="time">19h50 – 20h30</span>
-                <div class="content">
-                    Transfert Paris Saint-Lazare → Paris Austerlitz.
-                    <div class="details">
-                        <ul>
-                            <li>Métro Ligne 14 direction Aéroport d'Orly jusqu'à Gare de Lyon.</li>
-                            <li>10 min de marche entre la Gare de Lyon et la gare d'Austerlitz.</li>
-                            <li><strong>Temps total du transfert :</strong> environ 20 min.</li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-            <div class="timeline-item">
-                <span class="time">20h30 – 20h50</span>
-                <div class="content">Dîner à la gare d'Austerlitz avec le sandwich préparé à la maison.</div>
-            </div>
-            <div class="timeline-item">
-                <span class="time">20h57</span>
-                <div class="content">
-                    Départ de l'Intercités de Nuit (Paris Austerlitz → L'Argentière-les-Écrins).
-                    <br><span class="price">Nuit à bord pour récupérer avant la suite du séjour.</span>
-                    
-                    <div class="train-assembly" style="display: flex; align-items: flex-end; justify-content: center; width: 100%; max-width: 100%; overflow: hidden; background: transparent;">
-                        <div style="display: flex; align-items: flex-end; width: 100%; max-width: max-content;">
-                            <img src="loco intercites.png" alt="Locomotive" style="height: auto; max-height: 35px; width: auto; max-width: 20vw; display: block; margin: 0; padding: 0;">
-                            <img src="voitures intercites.png" alt="Voitures" style="height: auto; max-height: 35px; width: auto; max-width: 75vw; display: block; margin: 0; padding: 0; margin-left: -1px;">
-                        </div>
-                    </div>
-                    
-                    <div class="images-grid">
-                        <div class="image-box">
-                            <span>Gare de Paris Austerlitz</span>
-                            <div class="station-img-wrapper">
-                                <img src="Gare d'Austerlitz.jpg" alt="Austerlitz">
-                            </div>
-                        </div>
-                        <div class="image-box">
-                            <span>Gare de l'Argentière</span>
-                            <div class="station-img-wrapper">
-                                <img src="Gare_d'Argentière_2008.jpg" alt="Argentière">
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="timeline-item">
-                <span class="time">08h03</span>
-                <div class="content">Arrivée à la gare de L'Argentière-les-Écrins.</div>
-            </div>
-            <div class="timeline-item">
-                <span class="time">08h10</span>
-                <div class="content">Ma mère vient me récupérer à la gare.</div>
-            </div>
-            <div class="timeline-item">
-                <span class="time">Environ 08h25</span>
-                <div class="content">Arrivée à Puy-Saint-Vincent après 15 min de voiture.</div>
-            </div>
+    <div class="timeline">
+
+      <div class="stop stop--transfer">
+        <span class="stop__time">16h30</span>
+        <div class="stop__text">Départ de la maison.</div>
+        <div class="transfer">
+          Nalya m'emmène en voiture jusqu'à la gare d'Yvetot (environ 30 min prévues pour être tranquille).
         </div>
+      </div>
+
+      <div class="stop">
+        <span class="stop__time">17h07</span>
+        <div class="ticket ticket--nomad">
+          <div class="ticket__top">
+            <div class="ticket__kind">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="4" width="16" height="13" rx="2"/><path d="M8 21h8M9 17v4M15 17v4"/></svg>
+              Train NOMAD
+            </div>
+            <div class="ticket__route">
+              Yvetot
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+              Rouen R.D.
+            </div>
+            <div class="ticket__time-row"><span class="ticket__time">17h07</span></div>
+          </div>
+          <div class="ticket__perf"></div>
+          <div class="ticket__divider"></div>
+          <div class="ticket__stub">
+            <div class="nomad-container"><img src="TER nomad.png" alt="TER Nomad"></div>
+            <div class="barcode"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="stop">
+        <span class="stop__time">17h40</span>
+        <div class="stop__text">Arrivée à Rouen Rive Droite.</div>
+      </div>
+
+      <div class="stop">
+        <span class="stop__time">18h18</span>
+        <div class="ticket ticket--nomad">
+          <div class="ticket__top">
+            <div class="ticket__kind">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="4" width="16" height="13" rx="2"/><path d="M8 21h8M9 17v4M15 17v4"/></svg>
+              Train NOMAD
+            </div>
+            <div class="ticket__route">
+              Rouen R.D.
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+              Saint-Lazare
+            </div>
+            <div class="ticket__time-row"><span class="ticket__time">18h18</span></div>
+          </div>
+          <div class="ticket__perf"></div>
+          <div class="ticket__divider"></div>
+          <div class="ticket__stub">
+            <div class="nomad-container"><img src="nomad.png" alt="Nomad"></div>
+            <div class="barcode"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="stop">
+        <span class="stop__time">19h49</span>
+        <div class="stop__text">Arrivée à Paris Saint-Lazare.</div>
+      </div>
+
+      <div class="stop stop--transfer">
+        <span class="stop__time">19h50 – 20h30</span>
+        <div class="stop__text">Transfert Paris Saint-Lazare → Paris Austerlitz.</div>
+        <div class="transfer">
+          <ul>
+            <li>Métro Ligne 14, direction Aéroport d'Orly, jusqu'à Gare de Lyon.</li>
+            <li>10 min de marche entre la Gare de Lyon et la gare d'Austerlitz.</li>
+            <li><strong>Temps total :</strong> environ 20 min.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="stop">
+        <span class="stop__time">20h30 – 20h50</span>
+        <div class="stop__text">Dîner à la gare d'Austerlitz avec le sandwich préparé à la maison.</div>
+      </div>
+
+      <div class="stop">
+        <span class="stop__time">20h57</span>
+        <div class="ticket ticket--intercite">
+          <div class="ticket__top">
+            <div class="ticket__kind">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3a1 1 0 0 1 1 1v5a1 1 0 0 1-1 1H8a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h4Z"/></svg>
+              Intercités de nuit
+            </div>
+            <div class="ticket__route">
+              Paris
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+              L'Argentière-les-Écrins
+            </div>
+            <div class="ticket__time-row"><span class="ticket__time">20h57</span></div>
+            <p class="ticket__note">Nuit à bord pour récupérer avant la suite du séjour.</p>
+          </div>
+          <div class="ticket__perf"></div>
+          <div class="ticket__divider"></div>
+          <div class="ticket__stub">
+            <p class="ticket__stub-label">Composition du train</p>
+            <div class="train-assembly">
+              <div style="display:flex; align-items:flex-end; width:100%; max-width:max-content;">
+                <img src="loco intercites.png" alt="Locomotive" style="height:auto; max-height:35px; width:auto; max-width:20vw; display:block; margin:0; padding:0;">
+                <img src="voitures intercites.png" alt="Voitures" style="height:auto; max-height:35px; width:auto; max-width:75vw; display:block; margin:0; padding:0; margin-left:-1px;">
+              </div>
+            </div>
+            <div class="images-grid">
+              <div class="image-box">
+                <span>Gare de Paris Austerlitz</span>
+                <div class="station-img-wrapper"><img src="Gare d'Austerlitz.jpg" alt="Austerlitz"></div>
+              </div>
+              <div class="image-box">
+                <span>Gare de l'Argentière</span>
+                <div class="station-img-wrapper"><img src="Gare_d'Argentière_2008.jpg" alt="Argentière"></div>
+              </div>
+            </div>
+            <div class="barcode"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="stop">
+        <span class="stop__time">08h03</span>
+        <div class="stop__text">Arrivée à la gare de L'Argentière-les-Écrins.</div>
+      </div>
+
+      <div class="stop stop--transfer">
+        <span class="stop__time">08h10</span>
+        <div class="stop__text">Ma mère vient me récupérer à la gare.</div>
+      </div>
+
+      <div class="stop">
+        <span class="stop__time">≈ 08h25</span>
+        <div class="stop__text">Arrivée à Puy-Saint-Vincent après 15 min de voiture.</div>
+      </div>
+
     </div>
+  </section>
+
+</main>
+
+<footer>Bon voyage — et joyeux anniversaire à Nalya 🚄</footer>
+
+<script>
+  // scroll progress bar
+  const progress = document.getElementById('progress');
+  function updateProgress(){
+    const h = document.documentElement;
+    const scrolled = h.scrollTop;
+    const height = h.scrollHeight - h.clientHeight;
+    progress.style.width = (height > 0 ? (scrolled / height) * 100 : 0) + '%';
+  }
+  document.addEventListener('scroll', updateProgress, { passive:true });
+  updateProgress();
+
+  // reveal on scroll
+  const revealObserver = new IntersectionObserver((entries)=>{
+    entries.forEach(e=>{
+      if(e.isIntersecting){
+        e.target.classList.add('is-visible');
+        revealObserver.unobserve(e.target);
+      }
+    });
+  }, { threshold:0.15, rootMargin:'0px 0px -40px 0px' });
+  document.querySelectorAll('.stop').forEach(el=>revealObserver.observe(el));
+
+  // active day pill
+  const pills = document.querySelectorAll('.daynav__pill');
+  const sections = document.querySelectorAll('.day');
+  const navObserver = new IntersectionObserver((entries)=>{
+    entries.forEach(entry=>{
+      const id = entry.target.id;
+      const pill = document.querySelector('.daynav__pill[data-target="'+id+'"]');
+      if(!pill) return;
+      if(entry.isIntersecting){
+        pills.forEach(p=>p.classList.remove('is-active'));
+        pill.classList.add('is-active');
+        pill.scrollIntoView({ behavior:'smooth', inline:'center', block:'nearest' });
+      }
+    });
+  }, { rootMargin:'-45% 0px -50% 0px' });
+  sections.forEach(s=>navObserver.observe(s));
+</script>
 
 </body>
 </html>
